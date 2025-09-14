@@ -1,3 +1,9 @@
+/*
+ * Gets user input
+ *
+ * gets the whole line instead of
+ * terminating after a space (cin)
+ * */
 std::string getInput() {
 	std::cout << "Command> ";
 
@@ -6,6 +12,12 @@ std::string getInput() {
 	return text;
 }
 
+/*
+ * tokenizes the input
+ *
+ * @param input - the string input of the user 
+ * @returns vector<string> - dynamic array of tokens 
+ * */
 std::vector<std::string> tokenizeInput(std::string input) {
 	std::vector<std::string> tokens;
 	std::string token{ "" };
@@ -27,7 +39,9 @@ std::vector<std::string> tokenizeInput(std::string input) {
 	return tokens;
 }
 
-//debugging
+/*
+ * Debugging tokens
+ * */
 void printTokens(std::vector<std::string> tokens) {
 	std::cout << std::endl << "Testing tokens: " << std::endl; 
 	for(int i = 0; i < tokens.size(); i++) {
