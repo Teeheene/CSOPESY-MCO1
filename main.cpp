@@ -1,9 +1,215 @@
-#include <iostream>
+#include<iostream>
+#include<string>
 using namespace std;
 
-int main() 
-{
-	cout << "Hello, World!\n";
+void printLetter(string letter[36][8], char c){
+	int val = int(c);
+	val = val-97;
+	for(int i=0; i<8; i++) {
+		cout<<letter[val][i]<<endl;
+	}
+}
 
+void printLetters(string letter[36][8], string s){
+	int vals[s.length()];
+	string word[8];
+	
+	//char		ascii		index
+	//SPACE		32			0
+	//0-9		48-57		1-10
+	//A-Z		65-90		11-36
+	//a-z		97-122		11-36
+	
+	for(int i=0; i<s.length(); i++) {
+		if(s[i] == 32) {
+			vals[i] = s[i] - 32;
+		}
+		if(s[i] >= 48 && s[i] <= 57) {
+			vals[i] = s[i] - 48 + 1;
+		}
+		if(s[i] >= 65 && s[i] <= 90) {
+			vals[i] = s[i] - 65 + 1 + 10;
+		}
+		if(s[i] >= 97 && s[i] <= 122) {
+			vals[i] = s[i] - 97 + 1 + 10;
+		}
+	}
+	
+	for(int i=0; i<8; i++) {
+		for(int j=0; j<s.length(); j++) {
+			word[i].append(letter[vals[j]][i]);
+			word[i].append(" ");
+		}
+	}
+	
+	for(int i=0; i<8; i++) {
+		cout<<word[i]<<endl;
+	}
+}
+
+int main(){
+	//9x8 width x height modified ascii to be monospace. 
+	//Retrieved from https://patorjk.com/software/taag/ with Epic font
+	string letter[36][8]= {
+		{
+			"         ",
+			"         ",
+			"         ",
+			"         ",
+			"         ",
+			"         ",
+			"         ",
+			"         "
+		},
+		{
+			" _______ ",
+			"(  __   )",
+			"| (  )  |",
+			"| | /   |",
+			"| (/ /) |",
+			"|   / | |",
+			"|  (__) |",
+			"(_______)"
+         	
+		},
+		{
+			"  __     ",
+			" /  \\    ",
+			" \\/) )   ",
+			"   | |   ",
+			"   | |   ",
+			"   | |   ",
+			" __) (_  ",
+			" \\____/  "
+		},
+		{
+			" _______ ",
+			"/ ___   )",
+			"\\/   )  |",
+			"    /   )",
+			"  _/   / ",
+			" /   _/  ",
+			"(   (__/\\",
+			"\\_______/",
+         
+		},
+		{
+			" ______  ",
+			"/ ___  \\ ",
+			"\\/   \\  \\",
+			"   ___) /",
+			"  (___ ( ",
+			"     ) \\ ",
+			"/\\___/  /",
+			"\\______/ "
+		},
+		{
+			"    ___  ",
+			"   /   ) ", 
+			"  / /) | ",
+			" / (_) ( ",
+			"(___    )",
+			"    ) (  ",
+			"    | |  ",
+			"    (_)  ",
+		},
+		{
+			" _______ ",
+			"(  ____ \\",
+			"| (    \\/",
+			"| (____  ",
+			"(_____ \\ ",
+			"      ) )",
+			"/\\____) )",
+			"\\______/ "
+		},
+		{
+			"  ______ ",
+			" / ____ \\",
+			"( (    \\/",
+			"| (____  ",
+			"|  ___ \\ ",
+			"| (   ) )",
+			"( (___) )",
+			" \\_____/ "
+		},
+		{
+			" ______  ",
+			"/ ___  \\ ",
+			"\\/   )  )",
+			"    /  / ",
+			"   /  /  ",
+			"  /  /   ",
+			" /  /    ",
+			" \\_/     "
+		},
+		{
+			"  _____  ",
+			" / ___ \\ ",
+			"( (___) )",
+			" \\     / ",
+			" / ___ \\ ",
+			"( (   ) )",
+			"( (___) )",
+			" \\_____/ "
+		},
+		{
+			"  _____  ",
+			" / ___ \\ ",
+			"( (   ) )",
+			"( (___) |",
+			" \\____  |",
+			"      ) |",
+			"/\\____) )",
+			"\\______/ "
+		},
+		{
+			" ______  ",
+			"(  ___  )",
+			"| (   ) |",
+			"| (___) |",
+			"|  ___  |",
+			"| (   ) |",
+			"| )   ( |",
+			"|/     \\|"
+		},
+		{
+			" ______  ",
+			"(  ___ \\ ",
+			"| (   ) )",
+			"| (__/ / ",
+			"|  __ (  ",
+			"| (  \\ \\ ",
+			"| )___) )",
+			"|/ \\___/ "
+		},
+		{
+			" _______ ",
+			"(  ____ \\",
+			"| (    \\/",
+			"| |      ",
+			"| |      ",
+			"| |      ",
+			"| (____/\\",
+			"(_______/"
+		},
+		{
+			" ______  ",
+			"(  __  \\ ",
+			"| (  \\  )",
+			"| |   ) |",
+			"| |   | |",
+			"| |   ) |",
+			"| (__/  )",
+			"(______/ "
+		}
+		
+	};
+	//accept input for CLI window size? 
+	//(ex. type "aaaaaaaaaaaa" until line break to determine ascii art maximum size)
+	//idk about animation yet
+	
+	cout<<"Allowed characters: A-Z (automatically converted to uppercase), 0-9, spacebar"<<endl;
+	printLetters(letter,"01234 abcd 56789");
 	return 0;
 }
