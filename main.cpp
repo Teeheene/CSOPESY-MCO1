@@ -6,17 +6,33 @@
 #include <vector>
 #include <string>
 #include <cctype>
+<<<<<<< HEAD
+#include <mutex>
+#include <queue>
+=======
 
 //headers
+>>>>>>> 13f6c364a2a5cc358206e7c6e818b04ede655f0b
 #include "ascii.h"
 #include "display.h"
 #include "logic.h"
 
 std::atomic<bool> isRunning(true);
 
+std::queue<std::string> commandQueue;
+std::mutex queueMutex;
+
+std::string marqueeText;
+
 void keyboardHandler() {
-	while(isRunning) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	std::string command;
+	while (isRunning) {
+		std::getline(std::cin, command);
+		if (!command.empty()) {
+			std::unique_lock<std::mutex> lock(queueMutex);
+			commandQueue.push(command);
+			lock.unlock();
+		}
 	}
 }
 
@@ -42,24 +58,53 @@ int main()
 		
 	bool running = true;
 	fetchDisplay();
-	while(running) {
-		std::vector<std::string> tokens = tokenizeInput( getInput() );
-		std::string command = tokens[0];
-		
-		if(command == "neofetch") {
-			printLetters("opesy");
-			fetchDisplay();
-		}
-		else if(command == "help") {
-			printLetters("help");
-			fetchHelpDisplay();
-		}
-		else if(command == "exit") {
-			std::cout << "Terminating interpreter..." << std::endl;
-			running = false;
-		}
-	}
+    while (isRunning) {
+        std::string command;
+        std::vector<std::string> tokens;
 
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            if (!commandQueue.empty()) {
+                command = commandQueue.front();
+                tokens = tokenizeInput(command);
+                commandQueue.pop();
+            }
+        }
+
+        if (!command.empty()) {
+            if (tokens[0] == "exit") {
+                std::cout << "Terminating interpreter..." << std::endl;
+                isRunning = false;
+            }
+            else if (tokens[0] == "help") {
+                printLetters("help");
+                fetchHelpDisplay();
+            }
+            else if (tokens[0] == "neofetch") {
+                printLetters("opesy");
+                fetchDisplay();
+            }
+            else if (tokens[0] == "set_text") {
+                int i = 1;
+                marqueeText.clear();
+                while (i < tokens.size()) { 
+                    marqueeText += tokens[i] + " ";
+                    i++;
+                }
+
+                if (!marqueeText.empty()) {
+                    marqueeText.pop_back();
+                }
+                printLetters(marqueeText);
+            }
+            if (isRunning) {
+                std::cout << "\nCommand> " << std::flush;
+            }
+
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 	return 0;
 }
 
