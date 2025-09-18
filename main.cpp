@@ -1,5 +1,5 @@
 #include <iostream>
-#include <thread> //future use
+#include <thread> 
 #include <vector>
 #include <string>
 #include <cctype>
@@ -9,8 +9,15 @@
 
 int main() 
 {
+	/*
+	Template for threads
+	
+	std::thread marquee_logic_thread();
+	std::thread display_handler_thread();
+	std::thread keyboard_handler_thread();
+	*/
+		
 	bool running = true;
-
 	fetchDisplay();
 	while(running) {
 		std::vector<std::string> tokens = tokenizeInput( getInput() );
