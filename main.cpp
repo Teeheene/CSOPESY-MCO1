@@ -1,13 +1,18 @@
 #include <iostream>
 #include <thread> 
+#include <mutex> 
+#include <atomic>
+#include <chrono>
 #include <vector>
 #include <string>
 #include <cctype>
+
+//headers
 #include "ascii.h"
 #include "display.h"
 #include "logic.h"
 
-bool isRunning = true;
+std::atomic<bool> isRunning(true);
 
 void keyboardHandler() {
 	while(isRunning) {
@@ -30,6 +35,7 @@ void displayHandler() {
 
 int main() 
 {
+	//these threads are already running
 	std::thread keyboard_handler_thread(keyboardHandler);
 	std::thread marquee_logic_thread(marqueeLogic,50);
 	std::thread display_handler_thread(displayHandler);
