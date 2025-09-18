@@ -7,15 +7,32 @@
 #include "display.h"
 #include "logic.h"
 
+bool isRunning = true;
+
+void keyboardHandler() {
+	while(isRunning) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	}
+}
+
+void marqueeLogic(int display_width) {
+	while(isRunning) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	}
+}
+
+void displayHandler() {
+	const int refreshRate = 50;
+	while(isRunning) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(refreshRate));
+	}
+}
+
 int main() 
 {
-	/*
-	Template for threads
-	
-	std::thread marquee_logic_thread();
-	std::thread display_handler_thread();
-	std::thread keyboard_handler_thread();
-	*/
+	std::thread keyboard_handler_thread(keyboardHandler);
+	std::thread marquee_logic_thread(marqueeLogic,50);
+	std::thread display_handler_thread(displayHandler);
 		
 	bool running = true;
 	fetchDisplay();
