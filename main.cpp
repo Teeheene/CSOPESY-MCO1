@@ -8,6 +8,7 @@
 #include <cctype>
 #include <mutex>
 #include <queue>
+#include <conio.h>
 
 // headers
 #include "ascii.h"
@@ -21,6 +22,9 @@ std::mutex queueMutex;
 
 std::string marqueeText;
 
+std::atomic<bool> marqueeActive = false;
+
+int refreshRate = 50;
 void keyboardHandler()
 {
     std::string command;
@@ -40,15 +44,29 @@ void marqueeLogic(int display_width)
 {
     while (isRunning)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+        while (marqueeActive)
+        {
+            // Shift the string left by 1 character
+            char firstChar = marqueeText[0];
+            marqueeText.erase(0, 1);
+            marqueeText.push_back(firstChar);
+
+            // Print the marquee
+            printLetters(marqueeText);
+            fetchDisplay();
+            std::cout << "\nCommand> " << std::flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(refreshRate));
+            system("CLS");
+        }
     }
 }
 
 void displayHandler()
 {
-    const int refreshRate = 50;
     while (isRunning)
     {
+
         std::this_thread::sleep_for(std::chrono::milliseconds(refreshRate));
     }
 }
@@ -108,7 +126,24 @@ int main()
                 {
                     marqueeText.pop_back();
                 }
+                marqueeText += "     ";
                 printLetters(marqueeText);
+            }
+            else if (tokens[0] == "start_marquee")
+            {
+                marqueeActive = true;
+            }
+            else if (tokens[0] == "stop_marquee")
+            {
+                marqueeActive = false;
+                system("CLS");
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                printLetters(marqueeText);
+                fetchDisplay();
+            }
+            else if (tokens[0] == "set_speed")
+            {
+                refreshRate = std::stoi(tokens[1]);
             }
             if (isRunning)
             {
