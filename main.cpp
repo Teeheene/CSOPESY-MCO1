@@ -22,7 +22,7 @@ std::mutex queueMutex;
 
 std::string marqueeText;
 
-std::atomic<bool> marqueeActive = false;
+std::atomic<bool> marqueeActive(false);
 
 int refreshRate = 50;
 void keyboardHandler()
@@ -78,7 +78,6 @@ int main()
     std::thread marquee_logic_thread(marqueeLogic, 50);
     std::thread display_handler_thread(displayHandler);
 
-    bool running = true;
     fetchDisplay();
     while (isRunning)
     {
@@ -114,7 +113,7 @@ int main()
             }
             else if (tokens[0] == "set_text")
             {
-                int i = 1;
+                auto i = 1u;
                 marqueeText.clear();
                 while (i < tokens.size())
                 {

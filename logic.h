@@ -44,7 +44,7 @@ std::vector<std::string> tokenizeInput(std::string input) {
  * */
 void printTokens(std::vector<std::string> tokens) {
 	std::cout << std::endl << "Testing tokens: " << std::endl; 
-	for(int i = 0; i < tokens.size(); i++) {
+	for(auto i = 0u; i < tokens.size(); i++) {
 		std::cout << tokens[i] << std::endl;
 	}
 	std::cout << std::endl;

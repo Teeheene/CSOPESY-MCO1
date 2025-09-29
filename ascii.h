@@ -397,7 +397,7 @@ void printLetters(/*std::string letter[36][8], */std::string s){
 	//A-Z		65-90		11-36
 	//a-z		97-122		11-36
 	
-	for(int i=0; i<s.length(); i++) {
+	for(auto i=0u; i<s.length(); i++) {
 		if(s[i] == 32) {
 			vals[i] = s[i] - 32;
 		}
@@ -413,7 +413,7 @@ void printLetters(/*std::string letter[36][8], */std::string s){
 	}
 	
 	for(int i=0; i<8; i++) {
-		for(int j=0; j<s.length(); j++) {
+		for(auto j=0u; j<s.length(); j++) {
 			word[i].append(letter[vals[j]][i]);
 			word[i].append(" ");
 		}
