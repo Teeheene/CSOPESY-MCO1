@@ -32,16 +32,16 @@ void keyboardHandler()
     std::string command;
     while (isRunning)
     {
-    	while(!marqueeActive)
-    	{
-	        std::getline(std::cin, command);
-	        if (!command.empty())
-	        {
-	            std::unique_lock<std::mutex> lock(queueMutex);
-	            commandQueue.push(command);
-	            lock.unlock();
-	        }
-	    }
+        while (!marqueeActive)
+        {
+            std::getline(std::cin, command);
+            if (!command.empty())
+            {
+                std::unique_lock<std::mutex> lock(queueMutex);
+                commandQueue.push(command);
+                lock.unlock();
+            }
+        }
     }
 }
 
@@ -49,64 +49,65 @@ void marqueeLogic(int display_width)
 {
     while (isRunning)
     {
-    	while(marqueeActive)
-    	{
-	    	// Shift the string left by 1 character
-	    	char firstChar = marqueeText[0];
-	        marqueeText.erase(0, 1);
-	        marqueeText.push_back(firstChar);
-			
-			{
-				std::lock_guard<std::mutex> lock(displayMutex);
-		        system("CLS");
-		        // Print the marquee
-		        printLetters(marqueeText);
-		        fetchDisplay();
-		        {
-		        	std::lock_guard<std::mutex> lock(bufferMutex);
-					std::cout << "\nCommand> " << stringBuffer << std::flush;
-				}
-			}
-		    
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000/(refreshRate + 1)));
-	    }
-	}
+        while (marqueeActive)
+        {
+            // Shift the string left by 1 character
+            char firstChar = marqueeText[0];
+            marqueeText.erase(0, 1);
+            marqueeText.push_back(firstChar);
+
+            {
+                std::lock_guard<std::mutex> lock(displayMutex);
+                system("CLS");
+                // Print the marquee
+                printLetters(marqueeText);
+                fetchDisplay();
+                {
+                    std::lock_guard<std::mutex> lock(bufferMutex);
+                    std::cout << "\nCommand> " << stringBuffer << std::flush;
+                }
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000 / (refreshRate + 1)));
+        }
+    }
 }
 
 void displayHandler()
 {
     while (isRunning)
-	{
-		while(marqueeActive)
-		{
-			if(_kbhit()){	
-				char ch = _getch();
-				{	
-					std::lock_guard<std::mutex> lock(bufferMutex);
-					if(ch == '\r') 
-					{
-						if (!stringBuffer.empty())
-				        {
-				            std::unique_lock<std::mutex> lock(queueMutex);
-				            commandQueue.push(stringBuffer);
-				            lock.unlock();
-				        	stringBuffer = "";
-						}
-					} 
-					else if(ch == '\b')  
-					{
-						if(!stringBuffer.empty())
-							stringBuffer.pop_back();
-					}
-					else
-					{
-						stringBuffer.push_back(ch);
-					}
-				}
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(30));
-		}
-	}
+    {
+        while (marqueeActive)
+        {
+            if (_kbhit())
+            {
+                char ch = _getch();
+                {
+                    std::lock_guard<std::mutex> lock(bufferMutex);
+                    if (ch == '\r')
+                    {
+                        if (!stringBuffer.empty())
+                        {
+                            std::unique_lock<std::mutex> lock(queueMutex);
+                            commandQueue.push(stringBuffer);
+                            lock.unlock();
+                            stringBuffer = "";
+                        }
+                    }
+                    else if (ch == '\b')
+                    {
+                        if (!stringBuffer.empty())
+                            stringBuffer.pop_back();
+                    }
+                    else
+                    {
+                        stringBuffer.push_back(ch);
+                    }
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
+    }
 }
 
 int main()
@@ -117,6 +118,7 @@ int main()
     std::thread display_handler_thread(displayHandler);
 
     fetchDisplay();
+    std::cout << "\nCommand> " << stringBuffer << std::flush;
     while (isRunning)
     {
         std::string command;
@@ -151,24 +153,38 @@ int main()
             }
             else if (tokens[0] == "set_text")
             {
-                auto i = 1u;
-                marqueeText.clear();
-                while (i < tokens.size())
+                if (tokens.size() == 1)
                 {
-                    marqueeText += tokens[i] + " ";
-                    i++;
+                    std::cout << "No text set." << std::endl;
                 }
+                else
+                {
+                    auto i = 1u;
+                    marqueeText.clear();
+                    while (i < tokens.size())
+                    {
+                        marqueeText += tokens[i] + " ";
+                        i++;
+                    }
 
-                if (!marqueeText.empty())
-                {
-                    marqueeText.pop_back();
+                    if (!marqueeText.empty())
+                    {
+                        marqueeText.pop_back();
+                    }
+                    marqueeText += "     ";
+                    printLetters(marqueeText);
                 }
-                marqueeText += "     ";
-                printLetters(marqueeText);
             }
             else if (tokens[0] == "start_marquee")
             {
-                marqueeActive = true;
+                if (!marqueeText.empty())
+                {
+                    marqueeActive = true;
+                }
+                else
+                {
+                    std::cout << "No text set." << std::endl;
+                }
             }
             else if (tokens[0] == "stop_marquee")
             {
