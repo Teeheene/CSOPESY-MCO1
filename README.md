@@ -1,7 +1,7 @@
 # CSOPESY-MCO1  
 
 ## Authors  
-**Group 8**  
+### Group 8  
 - Diane Panganiban  
 - Gian Carlos  
 - Kenzo De Vera  
