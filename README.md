@@ -39,7 +39,7 @@ You can access available commands and usage instructions inside the program by t
      ```  
 
 ### Linux / macOS  
-> Not supported out of the box due to Windows-specific libraries (e.g. `<conio.h>`).  
+> Not supported due to Windows-specific libraries (e.g. `<conio.h>`).  
 
 ## Notes  
 - This project is built specifically for Windows.  
