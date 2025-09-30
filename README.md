@@ -1,24 +1,45 @@
-# CSOPESY-MCO1
-### Authors 
-**Group 8**<br>
-Diane Panganiban<br>
-Gian Carlos<br>
-Kenzo De Vera<br>
-Yesha Joes<br>
+# CSOPESY-MCO1  
 
-### Description
-This repository contains the source code for the Marquee Console. 
-The code is written in [C++], and the main functionality 
-starts from the entry class or file mentioned below.<br>
-<br>
-**Entry Class/ File**<br>
-src/[main].cpp
+## Authors  
+**Group 8**  
+- Diane Panganiban  
+- Gian Carlos  
+- Kenzo De Vera  
+- Yesha Joes  
 
-### Instructions
-**Windows:**<br>
-Simply run the ```run.bat``` file OR<br>
-<br>
-run the following command in your command line while in the ROOT folder of this project.<br>
-```g++ src/main.cpp -o program -lpthread && program.exe```<br>
-<br>
-NOTE: This program is not runnable on Linux due to the Windows-specific libraries.<br>
+## Description  
+This repository contains the source code for a **Marquee Console Application**, developed for CSOPESY MCO1.  
+The application simulates a console-based marquee display with interactive controls and multithreading support.  
+
+You can access available commands and usage instructions inside the program by typing:  
+`help`  
+
+**Entry File:**  
+`src/main.cpp`  
+
+## Features  
+- Console-based marquee text display.  
+- Adjustable speed using commands.  
+- Start/stop marquee functionality.  
+- Command-based interface (`help` for full list of instructions).  
+- Multithreaded implementation using `<thread>`, `<mutex>`, and `<atomic>`.  
+
+## Instructions  
+
+### Windows  
+1. Make sure you have **MinGW** or any compiler that supports C++11 (or higher) installed.  
+2. From the project **root**, you can either:  
+   - Run the provided batch file:  
+     ```
+     run.bat
+     ```  
+   - Or manually compile and run in your cmd using:  
+     ```
+     g++ src/main.cpp -o program -lpthread && program.exe
+     ```  
+
+### Linux / macOS  
+> Not supported out of the box due to Windows-specific libraries (e.g. `<conio.h>`).  
+
+## Notes  
+- This project is built specifically for Windows.  
