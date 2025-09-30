@@ -21,104 +21,101 @@ std::queue<std::string> commandQueue;
 std::mutex queueMutex;
 std::mutex displayMutex;
 std::mutex bufferMutex;
+std::mutex marqueeMutex;
 
 std::string marqueeText;
 std::string stringBuffer = "";
 std::atomic<bool> marqueeActive(false);
 
 int refreshRate = 50;
+
 void keyboardHandler()
 {
-    std::string command;
     while (isRunning)
     {
-        while (!marqueeActive)
-        {
-            std::getline(std::cin, command);
-            if (!command.empty())
-            {
-                std::unique_lock<std::mutex> lock(queueMutex);
-                commandQueue.push(command);
-                lock.unlock();
+		if (_kbhit())
+		{
+			char ch = _getch();
+                
+			if (ch == '\r')
+			{
+				std::string localStringBuffer;
+				{
+					std::lock_guard<std::mutex> lock(bufferMutex);
+					localStringBuffer = stringBuffer;
+					std::cout << std::endl;
+					stringBuffer.clear();
+				}
+				
+				if (!localStringBuffer.empty())
+				{
+					std::lock_guard<std::mutex> lock(queueMutex);
+					commandQueue.push(localStringBuffer);
+                }
+				    
+				{
+					std::lock_guard<std::mutex> lock(bufferMutex);
+                   	//std::cout << "Command> " << std::flush;
+				}
+			}
+			else if (ch == '\b')
+			{
+				std::lock_guard<std::mutex> lock(bufferMutex);
+				if (!stringBuffer.empty())
+				{
+					stringBuffer.pop_back();
+					std::cout << "\b \b" << std::flush;
+				}
             }
+			else
+			{
+				std::lock_guard<std::mutex> lock(bufferMutex);
+				stringBuffer.push_back(ch);
+				std::cout << ch << std::flush;
+			}
         }
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
-
-void marqueeLogic(int display_width)
+void marqueeLogic()
 {
     while (isRunning)
     {
         while (marqueeActive)
         {
-            // Shift the string left by 1 character
-            char firstChar = marqueeText[0];
-            marqueeText.erase(0, 1);
-            marqueeText.push_back(firstChar);
-
             {
-                std::lock_guard<std::mutex> lock(displayMutex);
+                std::lock_guard<std::mutex> mlock(marqueeMutex);
+                if (!marqueeText.empty())
+                {
+                    // Shift the string left by 1 character (safe because marqueeMutex locked)
+                    char firstChar = marqueeText[0];
+                    marqueeText.erase(0, 1);
+                    marqueeText.push_back(firstChar);
+                }
+            }
+            {
+                std::lock_guard<std::mutex> lock(bufferMutex);
                 system("CLS");
                 // Print the marquee
                 printLetters(marqueeText);
                 fetchDisplay();
-                {
-                    std::lock_guard<std::mutex> lock(bufferMutex);
-                    std::cout << "\nCommand> " << stringBuffer << std::flush;
-                }
+                std::cout << "\nCommand> " << stringBuffer << std::flush;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1000 / (refreshRate + 1)));
         }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
-
-void displayHandler()
-{
-    while (isRunning)
-    {
-        while (marqueeActive)
-        {
-            if (_kbhit())
-            {
-                char ch = _getch();
-                {
-                    std::lock_guard<std::mutex> lock(bufferMutex);
-                    if (ch == '\r')
-                    {
-                        if (!stringBuffer.empty())
-                        {
-                            std::unique_lock<std::mutex> lock(queueMutex);
-                            commandQueue.push(stringBuffer);
-                            lock.unlock();
-                            stringBuffer = "";
-                        }
-                    }
-                    else if (ch == '\b')
-                    {
-                        if (!stringBuffer.empty())
-                            stringBuffer.pop_back();
-                    }
-                    else
-                    {
-                        stringBuffer.push_back(ch);
-                    }
-                }
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(30));
-        }
-    }
-}
-
 int main()
 {
     // these threads are already running
-    std::thread keyboard_handler_thread(keyboardHandler);
-    std::thread marquee_logic_thread(marqueeLogic, 1);
-    std::thread display_handler_thread(displayHandler);
+    std::thread display_handler_thread(keyboardHandler);
+    std::thread marquee_logic_thread(marqueeLogic);
 
     fetchDisplay();
-    std::cout << "\nCommand> " << stringBuffer << std::flush;
+    std::cout << "\nCommand> " << std::flush;
     while (isRunning)
     {
         std::string command;
@@ -138,6 +135,7 @@ int main()
         {
             if (tokens[0] == "exit")
             {
+            	marqueeActive = false;
                 std::cout << "Terminating interpreter..." << std::endl;
                 isRunning = false;
             }
@@ -155,7 +153,7 @@ int main()
             {
                 if (tokens.size() == 1)
                 {
-                    std::cout << "No text set." << std::endl;
+                    std::cout << "WARNING: No text set." << std::endl;
                 }
                 else
                 {
@@ -183,7 +181,7 @@ int main()
                 }
                 else
                 {
-                    std::cout << "No text set." << std::endl;
+                    std::cout << "ERROR: No text set." << std::endl;
                 }
             }
             else if (tokens[0] == "stop_marquee")
@@ -196,7 +194,20 @@ int main()
             }
             else if (tokens[0] == "set_speed")
             {
-                refreshRate = std::stoi(tokens[1]);
+            	try 
+				{
+                	refreshRate = std::stoi(tokens[1]);
+                	if(refreshRate > 0)
+						std::cout << "Speed set to " << refreshRate << std::endl;
+					else 
+						std::cout << "WARNING: Speed must be greater than 0." << std::endl;
+				} catch (const std::invalid_argument&)
+				{
+					std::cout << "ERROR: Invalid input. Please enter a number." << std::endl;
+				} catch (const std::out_of_range&) 
+				{
+					std::cout << "ERROR: Number is too large. Please input another number." << std::endl;
+				}
             }
             if (isRunning)
             {
