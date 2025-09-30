@@ -121,10 +121,7 @@ int main()
             	try 
 				{
                 	refreshRate = std::stoi(tokens[1]);
-                	if(refreshRate > 0)
-						std::cout << "Speed set to " << refreshRate << std::endl;
-					else 
-						std::cout << "WARNING: Speed must be greater than 0." << std::endl;
+                	std::cout << "Speed set to " << refreshRate << std::endl;
 				} catch (const std::invalid_argument&)
 				{
 					std::cout << "ERROR: Invalid input. Please enter a number." << std::endl;

@@ -23,7 +23,7 @@ void marqueeHandler()
                 std::cout << "\nCommand> " << stringBuffer << std::flush;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000 / (refreshRate + 1)));
+            std::this_thread::sleep_for(std::chrono::milliseconds(refreshRate));
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
