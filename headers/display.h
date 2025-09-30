@@ -5,7 +5,7 @@ void fetchDisplay() {
 		<< "Gian Carlos" << std::endl
 		<< "Kenzo De Vera" << std::endl
 		<< "Yesha Joes" << std::endl << std::endl
-		<< "Version date:" << std::endl << std::endl;
+		<< "Version date: 9/30/2025" << std::endl << std::endl;
 }
 
 void fetchHelpDisplay() {

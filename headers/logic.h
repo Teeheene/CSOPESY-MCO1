@@ -1,18 +1,4 @@
 /*
- * Gets user input
- *
- * gets the whole line instead of
- * terminating after a space (cin)
- * */
-std::string getInput() {
-	std::cout << "Command> ";
-
-	std::string text;
-	std::getline(std::cin, text);
-	return text;
-}
-
-/*
  * tokenizes the input
  *
  * @param input - the string input of the user 

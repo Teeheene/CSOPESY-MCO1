@@ -1,0 +1,1 @@
+g++ -static -static-libgcc -static-libstdc++ -o program.exe main.cpp -lpthread && program.exe

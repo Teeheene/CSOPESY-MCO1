@@ -1,3 +1,4 @@
+// libraries
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -10,109 +11,32 @@
 #include <queue>
 #include <conio.h>
 
-// headers
-#include "ascii.h"
-#include "display.h"
-#include "logic.h"
-
+// global
 std::atomic<bool> isRunning(true);
+std::atomic<bool> marqueeActive(false);
 
 std::queue<std::string> commandQueue;
+std::string marqueeText;
+std::string stringBuffer = "";
+
 std::mutex queueMutex;
-std::mutex displayMutex;
 std::mutex bufferMutex;
 std::mutex marqueeMutex;
 
-std::string marqueeText;
-std::string stringBuffer = "";
-std::atomic<bool> marqueeActive(false);
-
 int refreshRate = 50;
 
-void keyboardHandler()
-{
-    while (isRunning)
-    {
-		if (_kbhit())
-		{
-			char ch = _getch();
-                
-			if (ch == '\r')
-			{
-				std::string localStringBuffer;
-				{
-					std::lock_guard<std::mutex> lock(bufferMutex);
-					localStringBuffer = stringBuffer;
-					std::cout << std::endl;
-					stringBuffer.clear();
-				}
-				
-				if (!localStringBuffer.empty())
-				{
-					std::lock_guard<std::mutex> lock(queueMutex);
-					commandQueue.push(localStringBuffer);
-                }
-				    
-				{
-					std::lock_guard<std::mutex> lock(bufferMutex);
-                   	//std::cout << "Command> " << std::flush;
-				}
-			}
-			else if (ch == '\b')
-			{
-				std::lock_guard<std::mutex> lock(bufferMutex);
-				if (!stringBuffer.empty())
-				{
-					stringBuffer.pop_back();
-					std::cout << "\b \b" << std::flush;
-				}
-            }
-			else
-			{
-				std::lock_guard<std::mutex> lock(bufferMutex);
-				stringBuffer.push_back(ch);
-				std::cout << ch << std::flush;
-			}
-        }
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-}
-void marqueeLogic()
-{
-    while (isRunning)
-    {
-        while (marqueeActive)
-        {
-            {
-                std::lock_guard<std::mutex> mlock(marqueeMutex);
-                if (!marqueeText.empty())
-                {
-                    // Shift the string left by 1 character (safe because marqueeMutex locked)
-                    char firstChar = marqueeText[0];
-                    marqueeText.erase(0, 1);
-                    marqueeText.push_back(firstChar);
-                }
-            }
-            {
-                std::lock_guard<std::mutex> lock(bufferMutex);
-                system("CLS");
-                // Print the marquee
-                printLetters(marqueeText);
-                fetchDisplay();
-                std::cout << "\nCommand> " << stringBuffer << std::flush;
-            }
+// headers
+#include "headers/ascii.h"
+#include "headers/display.h"
+#include "headers/logic.h"
+#include "threads/marqueeHandler.cpp"
+#include "threads/keyboardHandler.cpp"
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000 / (refreshRate + 1)));
-        }
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
-}
+// main
 int main()
 {
-    // these threads are already running
     std::thread display_handler_thread(keyboardHandler);
-    std::thread marquee_logic_thread(marqueeLogic);
+    std::thread marquee_logic_thread(marqueeHandler);
 
     fetchDisplay();
     std::cout << "\nCommand> " << std::flush;
